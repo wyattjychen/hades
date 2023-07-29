@@ -1,0 +1,11 @@
+
+hades.exe
+
+config.json
+dist
+.tags
+.VSCodeCounter
+.vscode
+
+master/logs
+slave/logs
