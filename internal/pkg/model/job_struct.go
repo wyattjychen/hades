@@ -107,3 +107,15 @@ func (j *Job) SplitCmd() {
 func (j *Job) TableName() string {
 	return HadesJobTableName
 }
+
+func (j *Job) FindById() error {
+	return mysqlconn.GetMysqlDB().Table(HadesJobTableName).Where("id = ? ", j.ID).First(j).Error
+}
+
+func (j *Job) Insert() (insertId int, err error) {
+	err = mysqlconn.GetMysqlDB().Table(HadesJobTableName).Create(j).Error
+	if err == nil {
+		insertId = j.ID
+	}
+	return
+}

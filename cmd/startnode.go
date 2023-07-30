@@ -77,7 +77,7 @@ func Start() {
 		}
 		// TODO : notification operation
 		// go notify.Serve()
-		logger.GetLogger().Info(fmt.Sprintf("crony node %s service started, Ctrl+C or send kill sign to exit", srv.String()))
+		logger.GetLogger().Info(fmt.Sprintf("hades node %s service started, Ctrl+C or send kill sign to exit", srv.String()))
 		// Register the logout event
 		event.OnEvent(event.EXIT, srv.Stop)
 		// Listen for exit signals

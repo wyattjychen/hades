@@ -32,6 +32,18 @@ func configRoute(r *gin.Engine) {
 		})
 	}
 
+	job := r.Group("/job")
+	// job.Use(middlerware.JWTAuth())
+	{
+		job.POST("add", defaultJobRouter.CreateOrUpdate)
+		// job.POST("del", defaultJobRouter.Delete)
+		// job.GET("find", defaultJobRouter.FindById)
+		// job.POST("search", defaultJobRouter.Search)
+		// job.POST("log", defaultJobRouter.SearchLog)
+		// job.POST("once", defaultJobRouter.Once)
+		//job.POST("kill", defaultJobRouter.Kill)
+	}
+
 	// base := r.Group("")
 	// {
 	// 	base.POST("register", defaultUserRouter.Register)
