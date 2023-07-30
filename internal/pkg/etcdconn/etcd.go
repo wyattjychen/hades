@@ -81,3 +81,39 @@ func NewEtcdTimeoutContext() (context.Context, context.CancelFunc) {
 	etcdCtx.etcdEndpoints = config.GetConfig().Etcd.Endpoints
 	return etcdCtx, cancel
 }
+
+func Grant(ttl int64) (*clientv3.LeaseGrantResponse, error) {
+	if defalutEtcd == nil {
+		return nil, hadeserrors.EtcdNotInitErr
+	}
+	ctx, cancel := NewEtcdTimeoutContext()
+	defer cancel()
+	return defalutEtcd.Grant(ctx, ttl)
+}
+
+func Revoke(id clientv3.LeaseID) (*clientv3.LeaseRevokeResponse, error) {
+	if defalutEtcd == nil {
+		return nil, hadeserrors.EtcdNotInitErr
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), defalutEtcd.reqTimeout)
+	defer cancel()
+	return defalutEtcd.Revoke(ctx, id)
+}
+
+func Watch(key string, opts ...clientv3.OpOption) clientv3.WatchChan {
+	return defalutEtcd.Watch(context.Background(), key, opts...)
+}
+
+func PutWithTtl(key, val string, ttl int64) (*clientv3.PutResponse, error) {
+	if defalutEtcd == nil {
+		return nil, hadeserrors.EtcdNotInitErr
+	}
+	ctx, cancel := NewEtcdTimeoutContext()
+	defer cancel()
+	//申请一个lease(租约)
+	leaseRsp, err := Grant(ttl)
+	if err != nil {
+		return nil, err
+	}
+	return defalutEtcd.Put(ctx, key, val, clientv3.WithLease(leaseRsp.ID))
+}

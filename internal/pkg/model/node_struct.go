@@ -34,3 +34,23 @@ func (n *Node) FindByUUID() error {
 func (n *Node) Delete() error {
 	return mysqlconn.GetMysqlDB().Exec(fmt.Sprintf("delete from %s where uuid = ?", HadesNodeTableName), n.UUID).Error
 }
+
+func (n *Node) Update() error {
+	return mysqlconn.GetMysqlDB().Table(HadesNodeTableName).Updates(n).Error
+}
+
+func (n *Node) Insert() (insertId int, err error) {
+	err = mysqlconn.GetMysqlDB().Table(HadesNodeTableName).Create(n).Error
+	if err == nil {
+		insertId = n.ID
+	}
+	return
+}
+
+func (n *Node) TableName() string {
+	return HadesNodeTableName
+}
+
+func (n *Node) String() string {
+	return "node[" + n.UUID + "] pid[" + n.PID + "]"
+}

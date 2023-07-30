@@ -6,6 +6,7 @@ dist
 .tags
 .VSCodeCounter
 .vscode
+*.log
 
 master/logs
 slave/logs

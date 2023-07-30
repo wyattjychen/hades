@@ -18,6 +18,40 @@ var (
 	slash     = []byte("/")
 )
 
+const (
+	Version      = "v0.0.1"
+	MasterModule = "hades/master"
+	NodeModule   = "hades/node"
+
+	shutdownMaxAge = 10 * time.Second
+	shutdownWait   = 1500 * time.Millisecond
+)
+
+const (
+	green   = "\033[97;42m"
+	white   = "\033[90;47m"
+	yellow  = "\033[90;43m"
+	red     = "\033[97;41m"
+	blue    = "\033[97;44m"
+	magenta = "\033[97;45m"
+	cyan    = "\033[97;46m"
+	reset   = "\033[0m"
+)
+
+type NodeConfigOptions struct {
+	flags.Options
+	Master            string `short:"n" long:"stype"  description:"Master or Node"`
+	Environment       string `short:"e" long:"env" description:"Use ApiServer environment" default:"testing"`
+	Version           bool   `short:"v" long:"verbose"  description:"Show ApiServer version"`
+	EnablePProfile    bool   `short:"p" long:"enable-pprof"  description:"enable pprof"`
+	PProfilePort      int    `short:"d" long:"pprof-port"  description:"pprof port" default:"8188"`
+	EnableHealthCheck bool   `short:"a" long:"enable-health-check"  description:"enable health check"`
+	HealthCheckURI    string `short:"i" long:"health-check-uri"  description:"health check uri" default:"/health" `
+	HealthCheckPort   int    `short:"f" long:"health-check-port"  description:"health check port" default:"8186"`
+	ConfigFileName    string `short:"c" long:"config" description:"Use ApiServer config file" default:""`
+	EnableDevMode     bool   `short:"m" long:"enable-dev-mode"  description:"enable dev mode"`
+}
+
 func formatTime(t time.Time) string {
 	var timeString = t.Format("2006/01/02 - 15:04:05")
 	return timeString

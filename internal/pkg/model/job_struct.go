@@ -2,8 +2,11 @@ package model
 
 import (
 	"encoding/json"
+	"strings"
 
 	"github.com/wyattjychen/hades/internal/pkg/mysqlconn"
+	"github.com/wyattjychen/hades/internal/pkg/utils"
+	"github.com/wyattjychen/hades/internal/pkg/utils/hadeserrors"
 )
 
 type JobType int
@@ -71,4 +74,36 @@ func (j *Job) InitNodeInfo(status int, nodeUUID, hostname, ip string) {
 
 func (j *Job) Update() error {
 	return mysqlconn.GetMysqlDB().Table(HadesJobTableName).Updates(j).Error
+}
+
+func (j *Job) Check() error {
+	j.Name = strings.TrimSpace(j.Name)
+	if len(j.Name) == 0 {
+		return hadeserrors.EmptyJobNameErr
+	}
+	if j.RetryInterval == 0 {
+		j.RetryTimes = 1
+	}
+	if len(strings.TrimSpace(j.Command)) == 0 {
+		return hadeserrors.EmptyJobCommandErr
+	}
+	if len(j.Cmd) == 0 && j.Type == JobTypeCmd {
+		j.SplitCmd()
+	}
+	return nil
+}
+
+func (j *Job) SplitCmd() {
+	ps := strings.SplitN(j.Command, " ", 2)
+	if len(ps) == 1 {
+		j.Cmd = ps
+		return
+	}
+	j.Cmd = make([]string, 0, 2)
+	j.Cmd = append(j.Cmd, ps[0])
+	j.Cmd = append(j.Cmd, utils.ParseCmdArguments(ps[1])...)
+}
+
+func (j *Job) TableName() string {
+	return HadesJobTableName
 }

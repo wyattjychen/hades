@@ -11,6 +11,8 @@ import (
 	"github.com/wyattjychen/hades/internal/pkg/master/masterservice"
 	"github.com/wyattjychen/hades/internal/pkg/mysqlconn"
 	"github.com/wyattjychen/hades/internal/pkg/server"
+	"github.com/wyattjychen/hades/internal/pkg/slave/slaveservice"
+	"github.com/wyattjychen/hades/internal/pkg/utils/event"
 )
 
 func Start() {
@@ -55,9 +57,37 @@ func Start() {
 		}
 		os.Exit(0)
 
-	} else {
+	} else if nodeType == "node" {
 		// Start slave
-		fmt.Println("node start")
+		srv, err := server.NewSlaveServer(nodeType, cfgFile)
+		if err != nil {
+			logger.GetLogger().Error(fmt.Sprintf("create new master server error:%s", err.Error()))
+			fmt.Println("slave server start failed!")
+			os.Exit(1)
+		}
+		fmt.Println("slave node start.")
+		slaveservice.RegisterTables(mysqlconn.GetMysqlDB())
+		if err = srv.Register(); err != nil {
+			logger.GetLogger().Error(fmt.Sprintf("register node into etcd error:%s", err.Error()))
+			os.Exit(1)
+		}
+		if err = srv.Run(); err != nil {
+			logger.GetLogger().Error(fmt.Sprintf("node run error: %s", err.Error()))
+			os.Exit(1)
+		}
+		// TODO : notification operation
+		// go notify.Serve()
+		logger.GetLogger().Info(fmt.Sprintf("crony node %s service started, Ctrl+C or send kill sign to exit", srv.String()))
+		// Register the logout event
+		event.OnEvent(event.EXIT, srv.Stop)
+		// Listen for exit signals
+		event.WaitEvent()
+		event.EmitEvent(event.EXIT, nil)
+		logger.GetLogger().Info("exit success")
+
+	} else {
+		fmt.Println("node start failed! Please input correct node type: master or node.")
+		os.Exit(1)
 	}
 
 }
