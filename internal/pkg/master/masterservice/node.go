@@ -12,7 +12,10 @@ import (
 	"github.com/coreos/etcd/mvcc/mvccpb"
 	"github.com/wyattjychen/hades/internal/pkg/etcdconn"
 	"github.com/wyattjychen/hades/internal/pkg/logger"
+	"github.com/wyattjychen/hades/internal/pkg/master/mastermodel/masterrequest"
 	"github.com/wyattjychen/hades/internal/pkg/model"
+	"github.com/wyattjychen/hades/internal/pkg/mysqlconn"
+	"github.com/wyattjychen/hades/internal/pkg/utils"
 )
 
 type NodeWatcherService struct {
@@ -263,4 +266,61 @@ func (n *NodeWatcherService) assignJob(nodeUUID string, job *model.Job) (err err
 		return
 	}
 	return
+}
+
+func (n *NodeWatcherService) Search(s *masterrequest.ReqNodeSearch) ([]model.Node, int64, error) {
+	db := mysqlconn.GetMysqlDB().Table(model.HadesNodeTableName)
+	if len(s.UUID) > 0 {
+		db = db.Where("uuid = ?", s.UUID)
+	}
+	if len(s.IP) > 0 {
+		db.Where("ip = ?", s.IP)
+	}
+	if s.Status > 0 {
+		db.Where("status = ?", s.Status)
+	}
+	if s.UpTime > 0 {
+		db.Where("up > ?", s.UpTime)
+	}
+	nodes := make([]model.Node, 2)
+	var total int64
+	err := db.Count(&total).Error
+	if err != nil {
+		return nil, 0, err
+	}
+	err = db.Limit(s.PageSize).Offset((s.Page - 1) * s.PageSize).Order("up desc").Find(&nodes).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return nodes, total, nil
+}
+
+func GetNodeSystemInfo(uuid string) (s *utils.Server, err error) {
+	defer func() {
+		_, err = etcdconn.Delete(fmt.Sprintf(etcdconn.EtcdSystemSwitchKey, uuid))
+	}()
+	s = new(utils.Server)
+	res, err := etcdconn.Get(fmt.Sprintf(etcdconn.EtcdSystemGetKey, uuid), clientv3.WithPrefix())
+	if err != nil || len(res.Kvs) == 0 {
+		return
+	}
+	err = json.Unmarshal(res.Kvs[0].Value, s)
+	if err != nil {
+		logger.GetLogger().Error(fmt.Sprintf("json error:%v", err))
+	}
+	return
+}
+
+func (n *NodeWatcherService) GetNodeCount(status int) (int64, error) {
+	db := mysqlconn.GetMysqlDB().Table(model.HadesNodeTableName)
+	if status > 0 {
+		db = db.Where("status = ?", status)
+	}
+	var total int64
+	err := db.Count(&total).Error
+	if err != nil {
+		return 0, err
+	}
+	return total, nil
 }

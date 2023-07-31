@@ -86,6 +86,7 @@ func (p *JobProc) Start() error {
 	}
 	_, err = etcdconn.PutWithTtl(p.Key(), string(b), config.GetConfig().System.JobProcTtl)
 	if err != nil {
+		logger.GetLogger().Error(err.Error())
 		return err
 	}
 	p.Wg.Done()

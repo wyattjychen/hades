@@ -4,9 +4,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/coreos/etcd/clientv3"
+	"github.com/wyattjychen/hades/internal/pkg/etcdconn"
 	"github.com/wyattjychen/hades/internal/pkg/logger"
+	"github.com/wyattjychen/hades/internal/pkg/master/mastermodel/masterresponse"
 	"github.com/wyattjychen/hades/internal/pkg/model"
 	"github.com/wyattjychen/hades/internal/pkg/mysqlconn"
+	"github.com/wyattjychen/hades/internal/pkg/utils"
 )
 
 type JobService struct {
@@ -74,4 +78,35 @@ func RunLogCleaner(cleanPeriod time.Duration, expiration int64) (close chan stru
 func cleanupLogs(expirationTime int64) error {
 	sql := fmt.Sprintf("delete from %s where start_time < ?", model.HadesJobLogTableName)
 	return mysqlconn.GetMysqlDB().Exec(sql, time.Now().Unix()-expirationTime).Error
+}
+
+// Get the total number of tasks executed today 1 indicates success 0 indicates failure
+func (j *JobService) GetTodayJobExcCount(success int) (int64, error) {
+	db := mysqlconn.GetMysqlDB().Table(model.HadesJobLogTableName).Where("start_time > ? and end_time!=0 and success = ?", utils.GetTodayUnix(), success)
+	var total int64
+	err := db.Count(&total).Error
+	if err != nil {
+		return 0, err
+	}
+	return total, nil
+}
+
+func (j *JobService) GetRunningJobCount() (int64, error) {
+	wresp, err := etcdconn.Get(fmt.Sprintf(etcdconn.EtcdProcKeyPrefix), clientv3.WithPrefix(), clientv3.WithCountOnly())
+	if err != nil {
+		return 0, err
+	}
+
+	return wresp.Count, nil
+}
+
+// The number of tasks per day in a certain period of time
+func (j *JobService) GetJobExcCount(start, end int64, success int) ([]masterresponse.DateCount, error) {
+	var dateCount []masterresponse.DateCount
+	db := mysqlconn.GetMysqlDB().Table(model.HadesJobLogTableName).Select("FROM_UNIXTIME( start_time, '%Y-%m-%d' ) AS date", "COUNT( * ) AS count ").Group("date").Order("date ASC").Where("start_time > ? and start_time<?  and end_time!=0 and success = ?", start, end, success)
+	err := db.Find(&dateCount).Error
+	if err != nil {
+		return nil, err
+	}
+	return dateCount, nil
 }

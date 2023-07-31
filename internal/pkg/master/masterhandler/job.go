@@ -109,3 +109,51 @@ func (j *JobRouter) CreateOrUpdate(c *gin.Context) {
 
 	masterresponse.OkWithDetailed(req, "operate success", c)
 }
+
+func (j *JobRouter) Delete(c *gin.Context) {
+	var req masterrequest.ByIDS
+	if err := c.ShouldBindJSON(&req); err != nil {
+		logger.GetLogger().Error(fmt.Sprintf("[delete_job] request parameter error:%s", err.Error()))
+		masterresponse.FailWithMessage(masterresponse.ErrorRequestParameter, "[delete_job] request parameter error", c)
+		return
+	}
+	for _, id := range req.IDS {
+		job := model.Job{ID: id}
+		err := job.FindById()
+		if err != nil {
+			logger.GetLogger().Error(fmt.Sprintf("[delete_job] find job by id :%d error:%s", id, err.Error()))
+			continue
+		}
+		_, err = etcdconn.Delete(fmt.Sprintf(etcdconn.EtcdJobKey, job.RunOn, id))
+		if err != nil {
+			logger.GetLogger().Error(fmt.Sprintf("[delete_job] etcd delete job error:%s", err.Error()))
+			continue
+		}
+		err = job.Delete()
+		if err != nil {
+			logger.GetLogger().Error(fmt.Sprintf("[delete_job] into db error:%s", err.Error()))
+			continue
+		}
+	}
+	masterresponse.OkWithMessage("delete success", c)
+}
+
+func (j *JobRouter) FindById(c *gin.Context) {
+	var req masterrequest.ByID
+	if err := c.ShouldBindQuery(&req); err != nil {
+		logger.GetLogger().Error(fmt.Sprintf("[find_job] request parameter error:%s", err.Error()))
+		masterresponse.FailWithMessage(masterresponse.ErrorRequestParameter, "[find_job] request parameter error", c)
+		return
+	}
+	job := model.Job{ID: req.ID}
+	err := job.FindById()
+	if err != nil {
+		logger.GetLogger().Error(fmt.Sprintf("[find_job] find job by id :%d error:%s", req.ID, err.Error()))
+		masterresponse.FailWithMessage(masterresponse.ERROR, "[find_job] find job by id error", c)
+		return
+	}
+	if len(job.NotifyTo) != 0 {
+		_ = job.Unmarshal()
+	}
+	masterresponse.OkWithDetailed(job, "find success", c)
+}

@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/wyattjychen/hades/internal/pkg/mysqlconn"
@@ -118,4 +119,8 @@ func (j *Job) Insert() (insertId int, err error) {
 		insertId = j.ID
 	}
 	return
+}
+
+func (j *Job) Delete() error {
+	return mysqlconn.GetMysqlDB().Exec(fmt.Sprintf("delete from %s where id = ?", HadesJobTableName), j.ID).Error
 }

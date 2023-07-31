@@ -88,7 +88,9 @@ func Grant(ttl int64) (*clientv3.LeaseGrantResponse, error) {
 	}
 	ctx, cancel := NewEtcdTimeoutContext()
 	defer cancel()
-	return defalutEtcd.Grant(ctx, ttl)
+	lease := clientv3.NewLease(defalutEtcd.Client)
+	resp, err := lease.Grant(ctx, ttl)
+	return resp, err
 }
 
 func Revoke(id clientv3.LeaseID) (*clientv3.LeaseRevokeResponse, error) {

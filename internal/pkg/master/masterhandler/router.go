@@ -7,8 +7,6 @@ func RegisterRouters(r *gin.Engine) {
 	// r.Use(middlerware.Cors())
 
 	configRoute(r)
-
-	// configNoRoute(r)
 }
 
 func configRoute(r *gin.Engine) {
@@ -33,76 +31,28 @@ func configRoute(r *gin.Engine) {
 	}
 
 	job := r.Group("/job")
-	// job.Use(middlerware.JWTAuth())
 	{
 		job.POST("add", defaultJobRouter.CreateOrUpdate)
-		// job.POST("del", defaultJobRouter.Delete)
-		// job.GET("find", defaultJobRouter.FindById)
+		job.POST("del", defaultJobRouter.Delete)
+		job.GET("find", defaultJobRouter.FindById)
 		// job.POST("search", defaultJobRouter.Search)
 		// job.POST("log", defaultJobRouter.SearchLog)
 		// job.POST("once", defaultJobRouter.Once)
-		//job.POST("kill", defaultJobRouter.Kill)
 	}
 
-	// base := r.Group("")
-	// {
-	// 	base.POST("register", defaultUserRouter.Register)
-	// 	base.POST("login", defaultUserRouter.Login)
-	// }
+	stat := r.Group("/statis")
+	// stat.Use(middlerware.JWTAuth())
+	{
+		stat.GET("today", defaultStatRouter.GetTodayStatistics)
+		stat.GET("week", defaultStatRouter.GetWeekStatistics)
+		stat.GET("system", defaultStatRouter.GetSystemInfo)
 
-	// stat := r.Group("/statis")
-	// // stat.Use(middlerware.JWTAuth())
-	// {
-	// 	stat.GET("today", defaultStatRouter.GetTodayStatistics)
-	// 	stat.GET("week", defaultStatRouter.GetWeekStatistics)
-	// 	stat.GET("system", defaultStatRouter.GetSystemInfo)
+	}
 
-	// }
+	node := r.Group("/node")
+	{
+		node.POST("search", defaultNodeRouter.Search)
+		node.POST("del", defaultNodeRouter.Delete)
+	}
 
-	// job := r.Group("/job")
-	// // job.Use(middlerware.JWTAuth())
-	// {
-	// 	job.POST("add", defaultJobRouter.CreateOrUpdate)
-	// 	job.POST("del", defaultJobRouter.Delete)
-	// 	job.GET("find", defaultJobRouter.FindById)
-	// 	job.POST("search", defaultJobRouter.Search)
-	// 	job.POST("log", defaultJobRouter.SearchLog)
-	// 	job.POST("once", defaultJobRouter.Once)
-	// 	//job.POST("kill", defaultJobRouter.Kill)
-	// }
-
-	// user := r.Group("/user")
-	// // user.Use(middlerware.JWTAuth())
-	// {
-	// 	user.POST("del", defaultUserRouter.Delete)
-	// 	user.POST("update", defaultUserRouter.Update)
-	// 	user.POST("change_pw", defaultUserRouter.ChangePassword)
-	// 	user.GET("find", defaultUserRouter.FindById)
-	// 	user.POST("search", defaultUserRouter.Search)
-	// }
-	// node := r.Group("/node")
-	// // node.Use(middlerware.JWTAuth())
-	// {
-	// 	node.POST("search", defaultNodeRouter.Search)
-	// 	node.POST("del", defaultNodeRouter.Delete)
-	// }
-	// script := r.Group("/script")
-	// // script.Use(middlerware.JWTAuth())
-	// {
-	// 	script.POST("add", defaultScriptRouter.CreateOrUpdate)
-	// 	script.POST("del", defaultScriptRouter.Delete)
-	// 	script.GET("find", defaultScriptRouter.FindById)
-	// 	script.POST("search", defaultScriptRouter.Search)
-	// }
 }
-
-// todo:优化，将静态资源转换成简单的页面
-// func configNoRoute(r *gin.Engine) {
-// 	r.LoadHTMLGlob("./dist/*.html") // npm打包成dist的路径
-// 	r.StaticFile("favicon.ico", "./dist/favicon.ico")
-// 	r.Static("/css", "./dist/css")         // dist里面的静态资源
-// 	r.Static("/fonts", "./dist/fonts")     // dist里面的静态资源
-// 	r.Static("/js", "./dist/js")           // dist里面的静态资源
-// 	r.Static("/img", "./dist/img")         // dist里面的静态资源
-// 	r.StaticFile("/", "./dist/index.html") // 前端网页入口页面
-// }
