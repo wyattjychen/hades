@@ -11,7 +11,6 @@ import (
 
 func RegisterTables(db *gorm.DB) error {
 	err := db.AutoMigrate(
-		// model.User{},
 		model.Node{},
 		model.Job{},
 		model.JobLog{},

@@ -7,9 +7,9 @@ import (
 
 func RegisterTables(db *gorm.DB) {
 	_ = db.AutoMigrate(
-		// model.User{},
 		model.Node{},
 		model.Job{},
 		model.JobLog{},
+		model.Script{},
 	)
 }

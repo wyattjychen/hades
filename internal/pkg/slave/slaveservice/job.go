@@ -98,7 +98,7 @@ func (srv *NodeServer) watchSystemInfo() {
 }
 
 func getUUID(key string) string {
-	// /crony/node/<node_uuid>
+	// /hades/node/<node_uuid>
 	index := strings.LastIndex(key, "/")
 	if index == -1 {
 		return ""

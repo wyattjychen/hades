@@ -57,9 +57,11 @@ func OkWithDetailed(data interface{}, message string, c *gin.Context) {
 func FailWithMessage(code int, message string, c *gin.Context) {
 	Result(code, map[string]interface{}{}, message, c)
 }
+
 func FailWithCode(code int, c *gin.Context) {
 	Result(code, map[string]interface{}{}, "operation failed", c)
 }
+
 func FailWithDetailed(code int, data interface{}, message string, c *gin.Context) {
 	Result(code, data, message, c)
 }

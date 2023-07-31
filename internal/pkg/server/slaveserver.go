@@ -12,6 +12,7 @@ import (
 	"github.com/wyattjychen/hades/internal/pkg/logger"
 	"github.com/wyattjychen/hades/internal/pkg/model"
 	"github.com/wyattjychen/hades/internal/pkg/mysqlconn"
+	"github.com/wyattjychen/hades/internal/pkg/notify"
 	"github.com/wyattjychen/hades/internal/pkg/slave/slavehandler"
 	"github.com/wyattjychen/hades/internal/pkg/slave/slaveservice"
 	"github.com/wyattjychen/hades/internal/pkg/utils"
@@ -39,6 +40,13 @@ func NewSlaveServer(nodeType, configFile string) (*slaveservice.NodeServer, erro
 	logger.Init(nodeType+uuid, logCfg.Level, logCfg.Format, logCfg.Prefix, logCfg.Director, logCfg.ShowLine, logCfg.EncodeLevel, logCfg.StacktraceKey, logCfg.LogInConsole)
 
 	// todo: notify init
+	notify.Init(&notify.Mail{
+		Port:     defaultCfg.Email.Port,
+		From:     defaultCfg.Email.From,
+		Host:     defaultCfg.Email.Host,
+		Secret:   defaultCfg.Email.Secret,
+		Nickname: defaultCfg.Email.Nickname,
+	})
 
 	// db-mysql
 	dsn := mysqlCfg.NewDsn()

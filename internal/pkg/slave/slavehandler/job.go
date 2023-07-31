@@ -13,6 +13,8 @@ import (
 	"github.com/wyattjychen/hades/internal/pkg/etcdconn"
 	"github.com/wyattjychen/hades/internal/pkg/logger"
 	"github.com/wyattjychen/hades/internal/pkg/model"
+	"github.com/wyattjychen/hades/internal/pkg/notify"
+	"github.com/wyattjychen/hades/internal/pkg/utils"
 )
 
 type Job struct {
@@ -113,28 +115,21 @@ func CreateJob(j *Job) cron.FuncJob {
 		if err != nil {
 			logger.GetLogger().Warn(fmt.Sprintf("Failed to find node with jobID:%d nodeUUID: %s error:%s", j.ID, j.RunOn, err.Error()))
 		}
-		// var to []string
-		// for _, userId := range j.NotifyToArray {
-		// 	userModel := &model.User{ID: userId}
-		// 	err = userModel.FindById()
-		// 	if err != nil {
-		// 		continue
-		// 	}
-		// 	if j.NotifyType == notify.NotifyTypeMail {
-		// 		to = append(to, userModel.Email)
-		// 	} else if j.NotifyType == notify.NotifyTypeWebHook && config.GetConfigModels().WebHook.Kind == "feishu" {
-		// 		to = append(to, userModel.UserName)
-		// 	}
-		// }
-		// msg := &notify.Message{
-		// 	Type:      j.NotifyType,
-		// 	IP:        fmt.Sprintf("%s:%s", node.IP, node.PID),
-		// 	Subject:   fmt.Sprintf("任务[%s]执行失败", j.Name),
-		// 	Body:      fmt.Sprintf("job[%d] run on node[%s] execute failed ,retry %d times ,output :%s, error:%v", j.ID, j.RunOn, j.RetryTimes, output, runErr),
-		// 	To:        to,
-		// 	OccurTime: time.Now().Format(utils.TimeFormatSecond),
-		// }
-		// go notify.Send(msg)
+		var to []string
+		for _, userEmail := range j.NotifyToArray {
+			if j.NotifyType == notify.NotifyTypeMail {
+				to = append(to, userEmail)
+			}
+		}
+		msg := &notify.Message{
+			Type:      j.NotifyType,
+			IP:        fmt.Sprintf("%s:%s", node.IP, node.PID),
+			Subject:   fmt.Sprintf("job[%s] execute failed!", j.Name),
+			Body:      fmt.Sprintf("job[%d] run on node[%s] execute failed ,retry %d times ,output :%s, error:%v", j.ID, j.RunOn, j.RetryTimes, output, runErr),
+			To:        to,
+			OccurTime: time.Now().Format(utils.TimeFormatSecond),
+		}
+		go notify.Send(msg)
 	}
 	return jobFunc
 }
@@ -206,28 +201,21 @@ func (j *Job) RunWithRecovery() {
 		if err != nil {
 			logger.GetLogger().Warn(fmt.Sprintf("Failed to find node with jobID:%d nodeUUID: %s error:%s", j.ID, j.RunOn, err.Error()))
 		}
-		// var to []string
-		// for _, userId := range j.NotifyToArray {
-		// 	userModel := &models.User{ID: userId}
-		// 	err = userModel.FindById()
-		// 	if err != nil {
-		// 		continue
-		// 	}
-		// 	if j.NotifyType == notify.NotifyTypeMail {
-		// 		to = append(to, userModel.Email)
-		// 	} else if j.NotifyType == notify.NotifyTypeWebHook && config.GetConfigModels().WebHook.Kind == "feishu" {
-		// 		to = append(to, userModel.UserName)
-		// 	}
-		// }
-		// msg := &notify.Message{
-		// 	Type:      j.NotifyType,
-		// 	IP:        fmt.Sprintf("%s:%s", node.IP, node.PID),
-		// 	Subject:   fmt.Sprintf("任务[%s]立即执行失败", j.Name),
-		// 	Body:      fmt.Sprintf("job[%d] run on node[%s] once execute failed ,output:%s,error:%s", j.ID, j.RunOn, result, runErr.Error()),
-		// 	To:        to,
-		// 	OccurTime: time.Now().Format(utils.TimeFormatSecond),
-		// }
-		// go notify.Send(msg)
+		var to []string
+		for _, userEmail := range j.NotifyToArray {
+			if j.NotifyType == notify.NotifyTypeMail {
+				to = append(to, userEmail)
+			}
+		}
+		msg := &notify.Message{
+			Type:      j.NotifyType,
+			IP:        fmt.Sprintf("%s:%s", node.IP, node.PID),
+			Subject:   fmt.Sprintf("job[%s] execute immediately failed!", j.Name),
+			Body:      fmt.Sprintf("job[%d] run on node[%s] once execute failed ,output:%s,error:%s", j.ID, j.RunOn, result, runErr.Error()),
+			To:        to,
+			OccurTime: time.Now().Format(utils.TimeFormatSecond),
+		}
+		go notify.Send(msg)
 	} else {
 		err = j.Success(jobLogId, t, result, 0)
 		if err != nil {

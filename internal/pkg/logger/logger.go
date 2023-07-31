@@ -99,7 +99,7 @@ func getEncoderConfig(prefix, encodeLevel, stacktraceKey string) (config zapcore
 }
 
 func getEncoderCore(logInConsole bool, prefix, format, encodeLevel, stacktraceKey string, fileName string, level zapcore.LevelEnabler) (core zapcore.Core) {
-	writer := getWriteSyncer(logInConsole, fileName) // 使用file-rotatelogs进行日志分割
+	writer := getWriteSyncer(logInConsole, fileName)
 	return zapcore.NewCore(getEncoder(prefix, format, encodeLevel, stacktraceKey), writer, level)
 }
 

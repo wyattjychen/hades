@@ -18,6 +18,7 @@ import (
 	"github.com/wyattjychen/hades/internal/pkg/etcdconn"
 	"github.com/wyattjychen/hades/internal/pkg/logger"
 	"github.com/wyattjychen/hades/internal/pkg/mysqlconn"
+	"github.com/wyattjychen/hades/internal/pkg/notify"
 )
 
 var NodeConfigOps = NodeConfigOptions{}
@@ -84,7 +85,14 @@ func NewMasterServer(nodeType, configFile string) (*Server, error) {
 
 	logger.Init(nodeType, logCfg.Level, logCfg.Format, logCfg.Prefix, logCfg.Director, logCfg.ShowLine, logCfg.EncodeLevel, logCfg.StacktraceKey, logCfg.LogInConsole)
 
-	// todo: notify init
+	//notify.
+	notify.Init(&notify.Mail{
+		Port:     defaultCfg.Email.Port,
+		From:     defaultCfg.Email.From,
+		Host:     defaultCfg.Email.Host,
+		Secret:   defaultCfg.Email.Secret,
+		Nickname: defaultCfg.Email.Nickname,
+	})
 
 	// db-mysql
 	dsn := mysqlCfg.NewDsn()

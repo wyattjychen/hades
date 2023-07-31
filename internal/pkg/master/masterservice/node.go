@@ -10,11 +10,13 @@ import (
 
 	"github.com/coreos/etcd/clientv3"
 	"github.com/coreos/etcd/mvcc/mvccpb"
+	"github.com/wyattjychen/hades/internal/pkg/config"
 	"github.com/wyattjychen/hades/internal/pkg/etcdconn"
 	"github.com/wyattjychen/hades/internal/pkg/logger"
 	"github.com/wyattjychen/hades/internal/pkg/master/mastermodel/masterrequest"
 	"github.com/wyattjychen/hades/internal/pkg/model"
 	"github.com/wyattjychen/hades/internal/pkg/mysqlconn"
+	"github.com/wyattjychen/hades/internal/pkg/notify"
 	"github.com/wyattjychen/hades/internal/pkg/utils"
 )
 
@@ -61,26 +63,37 @@ func (n *NodeWatcherService) watcher() {
 			case mvccpb.DELETE:
 				uuid := n.GetUUID(string(ev.Kv.Key))
 				n.delNodeList(uuid)
-				logger.GetLogger().Warn(fmt.Sprintf("crony node[%s] DELETE event detected", uuid))
+				logger.GetLogger().Warn(fmt.Sprintf("hades node[%s] DELETE event detected", uuid))
 				node := &model.Node{UUID: uuid}
 				err := node.FindByUUID()
 				if err != nil {
-					logger.GetLogger().Error(fmt.Sprintf("crony node[%s] find by uuid  error:%s", uuid, err.Error()))
+					logger.GetLogger().Error(fmt.Sprintf("hades node[%s] find by uuid  error:%s", uuid, err.Error()))
 					return
 				}
 
-				_, fail, err := n.FailOver(uuid)
+				success, fail, err := n.FailOver(uuid)
 				if err != nil {
-					logger.GetLogger().Error(fmt.Sprintf("crony node[%s] fail over error:%s", uuid, err.Error()))
+					logger.GetLogger().Error(fmt.Sprintf("hades node[%s] fail over error:%s", uuid, err.Error()))
 					return
 				}
 				// if the failover is all successful, delete the node in the database
 				if fail.Count() == 0 {
 					err = node.Delete()
 					if err != nil {
-						logger.GetLogger().Error(fmt.Sprintf("crony node[%s] delete by uuid  error:%s", uuid, err.Error()))
+						logger.GetLogger().Error(fmt.Sprintf("hades node[%s] delete by uuid  error:%s", uuid, err.Error()))
 					}
 				}
+				//Node inactivation information defaults to email.
+				msg := &notify.Message{
+					Type:      notify.NotifyTypeMail,
+					IP:        fmt.Sprintf("%s:%s", node.IP, node.PID),
+					Subject:   "ERROR:NODE DOWN!",
+					Body:      fmt.Sprintf("[Hades Warning]hades node[%s] in the cluster has failed,fail over success count:%d jobID are :%s ,fail count:%d jobID are :%s ", uuid, success.Count(), success.String(), fail.Count(), fail.String()),
+					To:        config.GetConfig().Email.To,
+					OccurTime: time.Now().Format(utils.TimeFormatSecond),
+				}
+
+				go notify.Send(msg)
 
 			}
 		}
@@ -95,6 +108,17 @@ func (r Result) Count() (count int) {
 			count++
 		}
 	}
+	return
+}
+
+func (r Result) String() (str string) {
+	str = "["
+	for _, v := range r {
+		if v != 0 {
+			str += fmt.Sprintf("%d,", v)
+		}
+	}
+	str += "]"
 	return
 }
 

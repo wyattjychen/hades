@@ -15,7 +15,7 @@ import (
 )
 
 // Information about the current task in execution
-// key: /crony/proc/<node_uuid>/<job_id>/pid</job_id></node_uuid>
+// key: /hades/proc/<node_uuid>/<job_id>/pid</job_id></node_uuid>
 // value: indicates the start execution time
 // The key expires automatically to prevent the key from being cleared after the process exits unexpectedly. The expiration time can be configured
 type JobProc struct {

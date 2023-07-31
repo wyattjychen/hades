@@ -3,8 +3,8 @@ package masterrequest
 type (
 	// PageInfo Paging common input parameter structure
 	PageInfo struct {
-		Page     int `json:"page" form:"page"`           // 页码
-		PageSize int `json:"page_size" form:"page_size"` // 每页大小
+		Page     int `json:"page" form:"page"`
+		PageSize int `json:"page_size" form:"page_size"`
 	}
 	ByID struct {
 		ID int `json:"id" form:"id"`

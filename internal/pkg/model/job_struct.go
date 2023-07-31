@@ -49,14 +49,14 @@ type Job struct {
 	HttpMethod    int     `json:"http_method" gorm:"size:1;column:http_method"`
 	NotifyType    int     `json:"notify_type" gorm:"size:1;column:notify_type;not null"`
 	// Whether to allocate nodes
-	Status        int    `json:"status" gorm:"size:1;column:status;not null;default:0;index:idx_job_status"`
-	NotifyTo      []byte `json:"-" gorm:"size:256;column:notify_to;default:null"`
-	NotifyToArray []int  `json:"notify_to" gorm:"-"`
-	Spec          string `json:"spec" gorm:"size:64;column:spec;not null"`
-	RunOn         string `json:"run_on" gorm:"size:128;column:run_on;index:idx_job_run_on;"`
-	Note          string `json:"note" gorm:"size:512;column:note;default:''"`
-	Created       int64  `json:"created" gorm:"column:created;not null"`
-	Updated       int64  `json:"updated" gorm:"column:updated;default:0"`
+	Status        int      `json:"status" gorm:"size:1;column:status;not null;default:0;index:idx_job_status"`
+	NotifyTo      []byte   `json:"-" gorm:"size:256;column:notify_to;default:null"`
+	NotifyToArray []string `json:"notify_to" gorm:"-"`
+	Spec          string   `json:"spec" gorm:"size:64;column:spec;not null"`
+	RunOn         string   `json:"run_on" gorm:"size:128;column:run_on;index:idx_job_run_on;"`
+	Note          string   `json:"note" gorm:"size:512;column:note;default:''"`
+	Created       int64    `json:"created" gorm:"column:created;not null"`
+	Updated       int64    `json:"updated" gorm:"column:updated;default:0"`
 
 	Hostname string   `json:"host_name" gorm:"-"`
 	Ip       string   `json:"ip" gorm:"-"`

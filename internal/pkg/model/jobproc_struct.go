@@ -7,8 +7,8 @@ import (
 )
 
 type JobProcVal struct {
-	Time   time.Time `json:"time"`   // 开始执行时间
-	Killed bool      `json:"killed"` // 是否强制杀死
+	Time   time.Time `json:"time"`   // start time
+	Killed bool      `json:"killed"` // kill force or not
 }
 
 type JobProc struct {
