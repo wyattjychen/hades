@@ -12,6 +12,7 @@ import (
 	"github.com/wyattjychen/hades/internal/pkg/master/mastermodel/masterrequest"
 	"github.com/wyattjychen/hades/internal/pkg/master/mastermodel/masterresponse"
 	"github.com/wyattjychen/hades/internal/pkg/master/masterservice"
+	"github.com/wyattjychen/hades/internal/pkg/master/masterservice/balance"
 	"github.com/wyattjychen/hades/internal/pkg/model"
 )
 
@@ -43,7 +44,8 @@ func (j *JobRouter) CreateOrUpdate(c *gin.Context) {
 			return
 		}
 		// Automatic allocation
-		nodeUUID := masterservice.DefaultJobService.AutoAllocateNode()
+		b := balance.BalanceType(config.GetConfig().System.Balance)
+		nodeUUID := masterservice.DefaultJobService.AutoAllocateNode(b)
 		if nodeUUID == "" {
 			logger.GetLogger().Error(fmt.Sprintf("[create_job] auto allocate node error"))
 			masterresponse.FailWithMessage(masterresponse.ERROR, "[create_job] auto allocate node error", c)

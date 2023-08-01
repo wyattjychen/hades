@@ -14,6 +14,7 @@ import (
 	"github.com/wyattjychen/hades/internal/pkg/etcdconn"
 	"github.com/wyattjychen/hades/internal/pkg/logger"
 	"github.com/wyattjychen/hades/internal/pkg/master/mastermodel/masterrequest"
+	"github.com/wyattjychen/hades/internal/pkg/master/masterservice/balance"
 	"github.com/wyattjychen/hades/internal/pkg/model"
 	"github.com/wyattjychen/hades/internal/pkg/mysqlconn"
 	"github.com/wyattjychen/hades/internal/pkg/notify"
@@ -134,7 +135,8 @@ func (n *NodeWatcherService) FailOver(nodeUUID string) (success Result, fail Res
 	for _, job := range jobs {
 
 		oldUUID := job.RunOn
-		autoUUID := DefaultJobService.AutoAllocateNode()
+		b := balance.BalanceType(config.GetConfig().System.Balance)
+		autoUUID := DefaultJobService.AutoAllocateNode(b)
 		if autoUUID == "" {
 			logger.GetLogger().Warn(fmt.Sprintf("node[%s] job[%d] fail over auto allocate node error", nodeUUID, job.ID))
 			fail = append(fail, job.ID)
@@ -248,7 +250,8 @@ func (n *NodeWatcherService) setNodeList(key, value string) {
 			continue
 		}
 		oldUUID := job.RunOn
-		nodeUUID := DefaultJobService.AutoAllocateNode()
+		b := balance.BalanceType(config.GetConfig().System.Balance)
+		nodeUUID := DefaultJobService.AutoAllocateNode(b)
 		if nodeUUID == "" {
 			//If automatic allocation fails, it will be directly assigned to the new node.
 			nodeUUID = key

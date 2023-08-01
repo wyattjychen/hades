@@ -8,6 +8,7 @@ import (
 	"github.com/wyattjychen/hades/internal/pkg/etcdconn"
 	"github.com/wyattjychen/hades/internal/pkg/logger"
 	"github.com/wyattjychen/hades/internal/pkg/master/mastermodel/masterresponse"
+	"github.com/wyattjychen/hades/internal/pkg/master/masterservice/balance"
 	"github.com/wyattjychen/hades/internal/pkg/model"
 	"github.com/wyattjychen/hades/internal/pkg/mysqlconn"
 	"github.com/wyattjychen/hades/internal/pkg/utils"
@@ -27,32 +28,61 @@ func (j *JobService) GetNotAssignedJob() (jobs []model.Job, err error) {
 
 // Give priority to the node with the least number of tasks
 // TODO: add other load balance algorithms
-func (j *JobService) AutoAllocateNode() string {
+func (j *JobService) AutoAllocateNode(balanceType balance.BalanceType) string {
 	//Get all the living nodes
 	nodeList := DefaultNodeWatcher.List2Array()
-	resultCount, resultNodeUUID := MaxJobCount, ""
-	for _, nodeUUID := range nodeList {
-		//Check the database to see if it is alive
-		node := &model.Node{UUID: nodeUUID}
-		err := node.FindByUUID()
+	switch balanceType {
+	case balance.RADOMBALANCE:
+		resultNodeUUID, err := balance.DefaultRandomBalancer.DoBalance(nodeList)
+		// logger.GetLogger().Info("random balance")
 		if err != nil {
-			continue
+			return ""
 		}
-		if node.Status == model.NodeConnFail {
-			//The node has failed
-			delete(DefaultNodeWatcher.nodeList, nodeUUID)
-			continue
-		}
-		count, err := DefaultNodeWatcher.GetJobCount(nodeUUID)
+		return resultNodeUUID
+	case balance.ROUNDROBINBALANCE:
+		resultNodeUUID, err := balance.DefaultRoundRobinBalancer.DoBalance(nodeList)
 		if err != nil {
-			logger.GetLogger().Warn(fmt.Sprintf("node[%s] get job conut error:%s", nodeUUID, err.Error()))
-			continue
+			return ""
 		}
-		if resultCount > count {
-			resultCount, resultNodeUUID = count, nodeUUID
+		return resultNodeUUID
+	case balance.SHUFFLEBALANCE:
+		resultNodeUUID, err := balance.DefaultSuffleBalancer.DoBalance(nodeList)
+		if err != nil {
+			return ""
 		}
+		return resultNodeUUID
+	case balance.CONSISTANTHASHBALANCE:
+		resultNodeUUID, err := balance.DefaultConsistantHashBalancer.DoBalance(nodeList)
+		if err != nil {
+			return ""
+		}
+		return resultNodeUUID
+	default:
+		//default: Least exec of tasks preferred.
+		resultCount, resultNodeUUID := MaxJobCount, ""
+		for _, nodeUUID := range nodeList {
+			//Check the database to see if it is alive
+			node := &model.Node{UUID: nodeUUID}
+			err := node.FindByUUID()
+			if err != nil {
+				continue
+			}
+			if node.Status == model.NodeConnFail {
+				//The node has failed
+				delete(DefaultNodeWatcher.nodeList, nodeUUID)
+				continue
+			}
+			count, err := DefaultNodeWatcher.GetJobCount(nodeUUID)
+			if err != nil {
+				logger.GetLogger().Warn(fmt.Sprintf("node[%s] get job conut error:%s", nodeUUID, err.Error()))
+				continue
+			}
+			if resultCount > count {
+				resultCount, resultNodeUUID = count, nodeUUID
+			}
+		}
+		return resultNodeUUID
 	}
-	return resultNodeUUID
 }
 
 func RunLogCleaner(cleanPeriod time.Duration, expiration int64) (close chan struct{}) {

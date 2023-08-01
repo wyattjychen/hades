@@ -5,6 +5,7 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
+	"github.com/wyattjychen/hades/internal/pkg/master/masterservice/balance"
 	"github.com/wyattjychen/hades/internal/pkg/model"
 )
 
@@ -34,6 +35,7 @@ func LoadConfig(nodeType, configFileName string) (*model.Config, error) {
 		fmt.Println(err)
 	}
 	fmt.Println("load config file success. ")
+	fmt.Println(balance.BalanceType(cfg.System.Balance).Name())
 	defaultConfig = &cfg
 	return &cfg, nil
 }

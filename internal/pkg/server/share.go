@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"runtime"
 	"time"
@@ -50,6 +52,7 @@ type NodeConfigOptions struct {
 	HealthCheckPort   int    `short:"f" long:"health-check-port"  description:"health check port" default:"8186"`
 	ConfigFileName    string `short:"c" long:"config" description:"Use ApiServer config file" default:""`
 	EnableDevMode     bool   `short:"m" long:"enable-dev-mode"  description:"enable dev mode"`
+	Balance           int    `short:"b" long:"balance-algorithm" description:"balance algorithm" default:"0"`
 }
 
 func formatTime(t time.Time) string {
@@ -96,14 +99,13 @@ func NewNode() (string, string, error) {
 		nodeType = "master"
 	}
 
-	// TODO:pprof
-	// if apiConfigOptions.EnablePProfile {
-	// 	go func() {
-	// 		fmt.Printf("enable pprof http server at:%d\n", apiConfigOptions.PProfilePort)
-	// 		fmt.Println(http.ListenAndServe(fmt.Sprintf(":%d", apiConfigOptions.PProfilePort), nil))
-	// 	}()
-	// }
-	// TODO:HealthCheck
+	// pprof
+	if NodeConfigOps.EnablePProfile {
+		go func() {
+			fmt.Printf("enable pprof http server at:%d\n", NodeConfigOps.PProfilePort)
+			fmt.Println(http.ListenAndServe(fmt.Sprintf(":%d", NodeConfigOps.PProfilePort), nil))
+		}()
+	}
 
 	// TODO:区分环境 目前先不区分
 	//var env = config.Env(NodeConfigOps.Environment)

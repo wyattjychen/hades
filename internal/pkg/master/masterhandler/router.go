@@ -41,7 +41,6 @@ func configRoute(r *gin.Engine) {
 	}
 
 	stat := r.Group("/statis")
-	// stat.Use(middlerware.JWTAuth())
 	{
 		stat.GET("today", defaultStatRouter.GetTodayStatistics)
 		stat.GET("week", defaultStatRouter.GetWeekStatistics)
