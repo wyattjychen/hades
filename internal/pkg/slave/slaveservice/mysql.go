@@ -10,6 +10,5 @@ func RegisterTables(db *gorm.DB) {
 		model.Node{},
 		model.Job{},
 		model.JobLog{},
-		model.Script{},
 	)
 }

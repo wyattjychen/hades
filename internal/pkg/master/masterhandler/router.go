@@ -3,8 +3,6 @@ package masterhandler
 import "github.com/gin-gonic/gin"
 
 func RegisterRouters(r *gin.Engine) {
-	// 先不做鉴权、等中间件jwt
-	// r.Use(middlerware.Cors())
 
 	configRoute(r)
 }
@@ -35,9 +33,8 @@ func configRoute(r *gin.Engine) {
 		job.POST("add", defaultJobRouter.CreateOrUpdate)
 		job.POST("del", defaultJobRouter.Delete)
 		job.GET("find", defaultJobRouter.FindById)
-		// job.POST("search", defaultJobRouter.Search)
-		// job.POST("log", defaultJobRouter.SearchLog)
-		// job.POST("once", defaultJobRouter.Once)
+		job.POST("search", defaultJobRouter.Search)
+		job.POST("log", defaultJobRouter.SearchLog)
 	}
 
 	stat := r.Group("/statis")

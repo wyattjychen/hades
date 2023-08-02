@@ -157,27 +157,6 @@ func (srv *NodeServer) addJob(j *slavehandler.Job) {
 		logger.GetLogger().Error(fmt.Sprintf("job[%d] check error :%s", j.ID, err.Error()))
 		return
 	}
-	//run script
-	if j.Type == model.JobTypeCmd {
-		for _, id := range j.ScriptIDArray {
-			script := &model.Script{ID: id}
-			err := script.FindById()
-			if err != nil {
-				logger.GetLogger().Warn(fmt.Sprintf("job[%d] find script[%d] error :%s", j.ID, id, err.Error()))
-				continue
-			}
-			err = script.Check()
-			if err != nil {
-				logger.GetLogger().Warn(fmt.Sprintf("script[%d] check error :%s", id, err.Error()))
-				continue
-			}
-			result, err := slavehandler.RunPresetScript(script)
-			if err != nil {
-				logger.GetLogger().Warn(fmt.Sprintf("job[%d] run script[%d] error :%s", j.ID, id, err.Error()))
-			}
-			logger.GetLogger().Info(fmt.Sprintf("job[%d] run script[%d] result :%s", j.ID, id, result))
-		}
-	}
 	taskFunc := slavehandler.CreateJob(j)
 	if taskFunc == nil {
 		logger.GetLogger().Error(fmt.Sprintf("Failed to create a task to process the Job. The task protocol was not supported%v", j.Type))

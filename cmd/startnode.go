@@ -42,7 +42,6 @@ func Start() {
 		if err != nil {
 			logger.GetLogger().Error(fmt.Sprintf("init db table error:%#v", err))
 		}
-		// TODO: Notify operation
 		go notify.Serve()
 		// log cleaner
 		var closeChan chan struct{}

@@ -42,17 +42,12 @@ const (
 
 type NodeConfigOptions struct {
 	flags.Options
-	Master            string `short:"n" long:"stype"  description:"Master or Node"`
-	Environment       string `short:"e" long:"env" description:"Use ApiServer environment" default:"testing"`
-	Version           bool   `short:"v" long:"verbose"  description:"Show ApiServer version"`
-	EnablePProfile    bool   `short:"p" long:"enable-pprof"  description:"enable pprof"`
-	PProfilePort      int    `short:"d" long:"pprof-port"  description:"pprof port" default:"8188"`
-	EnableHealthCheck bool   `short:"a" long:"enable-health-check"  description:"enable health check"`
-	HealthCheckURI    string `short:"i" long:"health-check-uri"  description:"health check uri" default:"/health" `
-	HealthCheckPort   int    `short:"f" long:"health-check-port"  description:"health check port" default:"8186"`
-	ConfigFileName    string `short:"c" long:"config" description:"Use ApiServer config file" default:""`
-	EnableDevMode     bool   `short:"m" long:"enable-dev-mode"  description:"enable dev mode"`
-	Balance           int    `short:"b" long:"balance-algorithm" description:"balance algorithm" default:"0"`
+	Master         string `short:"n" long:"stype"  description:"Master or Node"`
+	Environment    string `short:"e" long:"env" description:"Use ApiServer environment" default:"testing"`
+	EnablePProfile bool   `short:"p" long:"enable-pprof"  description:"enable pprof"`
+	PProfilePort   int    `short:"d" long:"pprof-port"  description:"pprof port" default:"8188"`
+	ConfigFileName string `short:"c" long:"config" description:"Use ApiServer config file" default:""`
+	Balance        int    `short:"b" long:"balance-algorithm" description:"balance algorithm" default:"0"`
 }
 
 func formatTime(t time.Time) string {
@@ -82,16 +77,6 @@ func NewNode() (string, string, error) {
 		os.Exit(0)
 	}
 
-	// 只有指定-v时才会显示版本，暂时不需要显示版本，可以除去
-	if NodeConfigOps.Version {
-		if isNode {
-			fmt.Printf("%s Version:%s\n", NodeModule, Version)
-		} else {
-			fmt.Printf("%s Version:%s\n", MasterModule, Version)
-		}
-		os.Exit(0)
-	}
-
 	var nodeType string
 	if isNode {
 		nodeType = "node"
@@ -106,9 +91,6 @@ func NewNode() (string, string, error) {
 			fmt.Println(http.ListenAndServe(fmt.Sprintf(":%d", NodeConfigOps.PProfilePort), nil))
 		}()
 	}
-
-	// TODO:区分环境 目前先不区分
-	//var env = config.Env(NodeConfigOps.Environment)
 
 	var configFile = NodeConfigOps.ConfigFileName
 

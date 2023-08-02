@@ -10,8 +10,7 @@ import (
 )
 
 const (
-	NotifyTypeMail    = 1
-	NotifyTypeWebHook = 2
+	NotifyTypeMail = 1
 )
 
 var mailTemplate = `

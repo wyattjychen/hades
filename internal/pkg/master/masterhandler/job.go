@@ -159,3 +159,52 @@ func (j *JobRouter) FindById(c *gin.Context) {
 	}
 	masterresponse.OkWithDetailed(job, "find success", c)
 }
+
+func (j *JobRouter) SearchLog(c *gin.Context) {
+	var req masterrequest.ReqJobLogSearch
+	if err := c.ShouldBindJSON(&req); err != nil {
+		logger.GetLogger().Error(fmt.Sprintf("[search_job_log] request parameter error:%s", err.Error()))
+		masterresponse.FailWithMessage(masterresponse.ErrorRequestParameter, "[search_job_log] request parameter error", c)
+		return
+	}
+	req.Check()
+	jobs, total, err := masterservice.DefaultJobService.SearchJobLog(&req)
+	if err != nil {
+		logger.GetLogger().Error(fmt.Sprintf("[search_job_log] db error:%s", err.Error()))
+		masterresponse.FailWithMessage(masterresponse.ERROR, "[search_job_log] db error", c)
+		return
+	}
+	masterresponse.OkWithDetailed(masterresponse.PageResult{
+		List:     jobs,
+		Total:    total,
+		Page:     req.Page,
+		PageSize: req.PageSize,
+	}, "search success", c)
+}
+
+func (j *JobRouter) Search(c *gin.Context) {
+	var req masterrequest.ReqJobSearch
+	if err := c.ShouldBindJSON(&req); err != nil {
+		logger.GetLogger().Error(fmt.Sprintf("[search_job] request parameter error:%s", err.Error()))
+		masterresponse.FailWithMessage(masterresponse.ErrorRequestParameter, "[search_job] request parameter error", c)
+		return
+	}
+	req.Check()
+	jobs, total, err := masterservice.DefaultJobService.Search(&req)
+	if err != nil {
+		logger.GetLogger().Error(fmt.Sprintf("[search_job] search job error:%s", err.Error()))
+		masterresponse.FailWithMessage(masterresponse.ERROR, "[search_job] search job error", c)
+		return
+	}
+	var resultJobs []model.Job
+	for _, job := range jobs {
+		_ = job.Unmarshal()
+		resultJobs = append(resultJobs, job)
+	}
+	masterresponse.OkWithDetailed(masterresponse.PageResult{
+		List:     resultJobs,
+		Total:    total,
+		Page:     req.Page,
+		PageSize: req.PageSize,
+	}, "search success", c)
+}

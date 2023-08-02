@@ -47,8 +47,7 @@ func (c *CMDHandler) Run(job *Job) (result string, err error) {
 			JobID:    job.ID,
 			NodeUUID: job.RunOn,
 			JobProcVal: model.JobProcVal{
-				Time:   time.Now(),
-				Killed: false,
+				Time: time.Now(),
 			},
 		},
 	}
@@ -59,26 +58,6 @@ func (c *CMDHandler) Run(job *Job) (result string, err error) {
 	defer proc.Stop()
 	if err = cmd.Wait(); err != nil {
 		logger.GetLogger().Error(fmt.Sprintf("%s%s", b.String(), err.Error()))
-		return b.String(), err
-	}
-	return b.String(), nil
-}
-
-func RunPresetScript(script *model.Script) (result string, err error) {
-	var cmd *exec.Cmd
-	cmd = exec.Command(script.Cmd[0], script.Cmd[1:]...)
-	var b bytes.Buffer
-	cmd.Stdout = &b
-	cmd.Stderr = &b
-
-	err = cmd.Start()
-	result = b.String()
-	if err != nil {
-		logger.GetLogger().Error(fmt.Sprintf("run preset script:%s\n%s", b.String(), err.Error()))
-		return
-	}
-	if err = cmd.Wait(); err != nil {
-		logger.GetLogger().Error(fmt.Sprintf("run preset script:%s%s", b.String(), err.Error()))
 		return b.String(), err
 	}
 	return b.String(), nil

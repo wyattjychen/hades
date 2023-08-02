@@ -7,6 +7,7 @@ import (
 	"github.com/coreos/etcd/clientv3"
 	"github.com/wyattjychen/hades/internal/pkg/etcdconn"
 	"github.com/wyattjychen/hades/internal/pkg/logger"
+	"github.com/wyattjychen/hades/internal/pkg/master/mastermodel/masterrequest"
 	"github.com/wyattjychen/hades/internal/pkg/master/mastermodel/masterresponse"
 	"github.com/wyattjychen/hades/internal/pkg/master/masterservice/balance"
 	"github.com/wyattjychen/hades/internal/pkg/model"
@@ -139,4 +140,63 @@ func (j *JobService) GetJobExcCount(start, end int64, success int) ([]masterresp
 		return nil, err
 	}
 	return dateCount, nil
+}
+
+func (j *JobService) Search(s *masterrequest.ReqJobSearch) ([]model.Job, int64, error) {
+	db := mysqlconn.GetMysqlDB().Table(model.HadesJobTableName)
+	if s.ID > 0 {
+		db = db.Where("id = ?", s.ID)
+	}
+	if len(s.Name) > 0 {
+		db = db.Where("name like ?", s.Name+"%")
+	}
+	if len(s.RunOn) > 0 {
+		db.Where("run_on = ?", s.RunOn)
+	}
+	if s.Type > 0 {
+		db.Where("type = ?", s.Type)
+	}
+	if s.Status > 0 {
+		db.Where("status = ? ", s.Status)
+	}
+	jobs := make([]model.Job, 2)
+	var total int64
+	err := db.Count(&total).Error
+	if err != nil {
+		return nil, 0, err
+	}
+	err = db.Limit(s.PageSize).Offset((s.Page - 1) * s.PageSize).Find(&jobs).Error
+	if err != nil {
+		return nil, 0, err
+	}
+	return jobs, total, nil
+}
+
+func (j *JobService) SearchJobLog(s *masterrequest.ReqJobLogSearch) ([]model.JobLog, int64, error) {
+	db := mysqlconn.GetMysqlDB().Table(model.HadesJobLogTableName)
+	if len(s.Name) > 0 {
+		db = db.Where("name like ?", s.Name+"%")
+	}
+	if s.JobId > 0 {
+		db.Where("job_id = ?", s.JobId)
+	}
+	if len(s.NodeUUID) > 0 {
+		db.Where("node_uuid = ?", s.NodeUUID)
+	}
+	if s.Success != nil {
+		logger.GetLogger().Info(fmt.Sprintf("%v", *s.Success))
+		db.Where("success = ? ", *s.Success)
+	}
+	jobLogs := make([]model.JobLog, 2)
+	var total int64
+	err := db.Count(&total).Error
+	if err != nil {
+		return nil, 0, err
+	}
+	err = db.Limit(s.PageSize).Offset((s.Page - 1) * s.PageSize).Order("start_time desc").Find(&jobLogs).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return jobLogs, total, nil
 }

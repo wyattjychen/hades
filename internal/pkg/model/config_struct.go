@@ -6,8 +6,6 @@ const (
 	HadesNodeTableName   = "node"
 	HadesJobTableName    = "job"
 	HadesJobLogTableName = "job_log"
-	HadesUserTableName   = "user"
-	HadesScriptTableName = "script"
 )
 
 type Mysql struct {
@@ -30,10 +28,6 @@ type Email struct {
 	Secret   string   `mapstructure:"secret" json:"secret" yaml:"secret" ini:"secret"`
 	Nickname string   `mapstructure:"nickname" json:"nickname" yaml:"nickname" ini:"nickname"`
 	To       []string `mapstructure:"to" json:"to" yaml:"to" ini:"to"`
-}
-type WebHook struct {
-	Kind string `mapstructure:"kind" json:"kind" yaml:"kind" ini:"kind"`
-	Url  string `mapstructure:"url" json:"url" yaml:"url" ini:"kind"`
 }
 type Etcd struct {
 	Endpoints   []string `mapstructure:"endpoints" json:"endpoints" yaml:"endpoints" ini:"endpoints"`
@@ -64,12 +58,11 @@ type Log struct {
 	LogInConsole  bool   `mapstructure:"log-in-console" json:"logInConsole" yaml:"log-in-console" ini:"log-in-console"`
 }
 type Config struct {
-	WebHook WebHook `mapstructure:"webhook" json:"webhook" yaml:"webhook" ini:"webhook"`
-	Log     Log     `mapstructure:"log" json:"log" yaml:"log" ini:"log"`
-	Email   Email   `mapstructure:"email" json:"email" yaml:"email" ini:"email"`
-	System  System  `mapstructure:"system" json:"system" yaml:"system" ini:"system"`
-	Mysql   Mysql   `mapstructure:"mysql" json:"mysql" yaml:"mysql" ini:"mysql"`
-	Etcd    Etcd    `mapstructure:"etcd" json:"etcd" yaml:"etcd" ini:"etcd"`
+	Log    Log    `mapstructure:"log" json:"log" yaml:"log" ini:"log"`
+	Email  Email  `mapstructure:"email" json:"email" yaml:"email" ini:"email"`
+	System System `mapstructure:"system" json:"system" yaml:"system" ini:"system"`
+	Mysql  Mysql  `mapstructure:"mysql" json:"mysql" yaml:"mysql" ini:"mysql"`
+	Etcd   Etcd   `mapstructure:"etcd" json:"etcd" yaml:"etcd" ini:"etcd"`
 }
 
 func (m *Mysql) NewDsn() string {

@@ -34,7 +34,6 @@ type Message struct {
 }
 
 func Send(msg *Message) {
-	// logger.GetLogger().Info("message get!")
 	msgQueue <- msg
 }
 

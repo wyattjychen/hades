@@ -26,14 +26,6 @@ type (
 		*model.Job
 		Allocation int `json:"allocation" form:"allocation" binding:"required"`
 	}
-	ReqJobOnce struct {
-		JobId    int    `json:"job_id" form:"job_id"`
-		NodeUUID string `json:"node_uuid" form:"node_uuid"`
-	}
-	ReqJobKill struct {
-		JobId    int    `json:"job_id" form:"job_id"`
-		NodeUUID string `json:"node_uuid" form:"node_uuid"`
-	}
 )
 
 func (r *ReqJobUpdate) Valid() error {

@@ -24,15 +24,14 @@ import (
 var NodeConfigOps = NodeConfigOptions{}
 
 type Server struct {
-	Engine      *gin.Engine
-	HttpServer  *http.Server
-	Addr        string
-	mu          sync.Mutex
-	doneChan    chan struct{}
-	Routers     []func(*gin.Engine)
-	Middlewares []func(*gin.Engine)
-	Shutdowns   []func(*Server)
-	Services    []func(*Server)
+	Engine     *gin.Engine
+	HttpServer *http.Server
+	Addr       string
+	mu         sync.Mutex
+	doneChan   chan struct{}
+	Routers    []func(*gin.Engine)
+	Shutdowns  []func(*Server)
+	Services   []func(*Server)
 }
 
 func (srv *Server) setupSignal() {
@@ -150,9 +149,9 @@ func (srv *Server) ListenAndServe() error {
 		service(srv)
 	}
 
-	for _, middleware := range srv.Middlewares {
-		middleware(srv.Engine)
-	}
+	// for _, middleware := range srv.Middlewares {
+	// 	middleware(srv.Engine)
+	// }
 
 	for _, c := range srv.Routers {
 		c(srv.Engine)

@@ -94,7 +94,6 @@ func (srv *NodeServer) Run() (err error) {
 	//start cron
 	srv.Cron.Start()
 	go srv.watchJobs()
-	//go srv.watchKilledProc()
 	go srv.watchOnce()
 	go srv.watchSystemInfo()
 	return

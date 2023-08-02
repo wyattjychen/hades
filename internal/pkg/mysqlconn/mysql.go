@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/wyattjychen/hades/internal/pkg/logger"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -48,7 +49,7 @@ func Init(dsn, logMode string, maxIdleConns, maxOpenConns int) (*gorm.DB, error)
 
 func GetMysqlDB() *gorm.DB {
 	if defaultDB == nil {
-		// todo:添加logger
+		logger.GetLogger().Error("mysql database is not initialized")
 		return nil
 	}
 	return defaultDB

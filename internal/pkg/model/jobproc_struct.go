@@ -7,8 +7,7 @@ import (
 )
 
 type JobProcVal struct {
-	Time   time.Time `json:"time"`   // start time
-	Killed bool      `json:"killed"` // kill force or not
+	Time time.Time `json:"time"` // start time
 }
 
 type JobProc struct {
@@ -16,7 +15,6 @@ type JobProc struct {
 	JobID    int    `json:"job_id"`
 	NodeUUID string `json:"node_uuid"`
 	JobProcVal
-
 	Running int32
 	Wg      sync.WaitGroup
 }
