@@ -14,18 +14,6 @@ func configRoute(r *gin.Engine) {
 		hello.GET("", func(c *gin.Context) {
 			c.JSON(200, "pong")
 		})
-		hello.POST("", func(c *gin.Context) {
-			type Hello struct {
-				Name string `json:"name" form:"name"`
-			}
-			var h Hello
-			var err error
-			err = c.ShouldBindJSON(&h)
-			if err != nil {
-				c.JSON( /*resp.ERROR*/ 1000, err.Error())
-			}
-			c.JSON(200, "hello,"+h.Name)
-		})
 	}
 
 	job := r.Group("/job")

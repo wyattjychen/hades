@@ -112,7 +112,6 @@ func PutWithTtl(key, val string, ttl int64) (*clientv3.PutResponse, error) {
 	}
 	ctx, cancel := NewEtcdTimeoutContext()
 	defer cancel()
-	// apply for a lease
 	leaseRsp, err := Grant(ttl)
 	if err != nil {
 		return nil, err

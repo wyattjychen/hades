@@ -37,15 +37,13 @@ type Etcd struct {
 	ReqTimeout  int64    `mapstructure:"req-timeout" json:"req-timeout" yaml:"req-timeout" ini:"req-timeout"`
 }
 type System struct {
-	Env                string `mapstructure:"env" json:"env" yaml:"env" ini:"env"`
-	Addr               int    `mapstructure:"addr" json:"addr" yaml:"addr" ini:"addr"`
-	NodeTtl            int64  `mapstructure:"node-ttl" json:"node-ttl" yaml:"node-ttl" ini:"node-ttl"`
-	JobProcTtl         int64  `mapstructure:"job-proc-ttl" json:"job-proc-ttl" yaml:"job-proc-ttl" ini:"job-proc-ttl"`
-	Version            string `mapstructure:"version" json:"version" yaml:"version" ini:"version"`
-	LogCleanPeriod     int64  `mapstructure:"log-clean-period" json:"log-clean-period" yaml:"log-clean-period" ini:"log-clean-period"`
-	LogCleanExpiration int64  `mapstructure:"log-clean-expiration" json:"log-clean-expiration" yaml:"log-clean-expiration" ini:"log-clean-expiration"`
-	CmdAutoAllocation  bool   `mapstructure:"cmd-auto-allocation" json:"cmd-auto-allocation" yaml:"cmd-auto-allocation" ini:"cmd-auto-allocation"`
-	Balance            int64  `mapstructure:"balance" json:"balance" yaml:"balance" ini:"balance"`
+	Addr               int   `mapstructure:"addr" json:"addr" yaml:"addr" ini:"addr"`
+	NodeTtl            int64 `mapstructure:"node-ttl" json:"node-ttl" yaml:"node-ttl" ini:"node-ttl"`
+	JobProcTtl         int64 `mapstructure:"job-proc-ttl" json:"job-proc-ttl" yaml:"job-proc-ttl" ini:"job-proc-ttl"`
+	LogCleanPeriod     int64 `mapstructure:"log-clean-period" json:"log-clean-period" yaml:"log-clean-period" ini:"log-clean-period"`
+	LogCleanExpiration int64 `mapstructure:"log-clean-expiration" json:"log-clean-expiration" yaml:"log-clean-expiration" ini:"log-clean-expiration"`
+	CmdAutoAllocation  bool  `mapstructure:"cmd-auto-allocation" json:"cmd-auto-allocation" yaml:"cmd-auto-allocation" ini:"cmd-auto-allocation"`
+	Balance            int64 `mapstructure:"balance" json:"balance" yaml:"balance" ini:"balance"`
 }
 type Log struct {
 	Level         string `mapstructure:"level" json:"level" yaml:"level" ini:"level"`

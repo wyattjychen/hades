@@ -27,8 +27,6 @@ func (j *JobService) GetNotAssignedJob() (jobs []model.Job, err error) {
 	return
 }
 
-// Give priority to the node with the least number of tasks
-// TODO: add other load balance algorithms
 func (j *JobService) AutoAllocateNode(balanceType balance.BalanceType) string {
 	//Get all the living nodes
 	nodeList := DefaultNodeWatcher.List2Array()

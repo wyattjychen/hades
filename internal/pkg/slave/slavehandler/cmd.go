@@ -27,14 +27,13 @@ func (c *CMDHandler) Run(job *Job) (result string, err error) {
 		cmd = exec.Command(job.Cmd[0], job.Cmd[1:]...)
 	}
 
-	fmt.Println(job.Cmd[0])
-	fmt.Println(job.Cmd[1])
+	// fmt.Println(job.Cmd[0])
+	// fmt.Println(job.Cmd[1])
 
 	var b bytes.Buffer
 	cmd.Stdout = &b
 	cmd.Stderr = &b
 
-	// err = cmd.Start()
 	err = cmd.Start()
 	result = b.String()
 	if err != nil {

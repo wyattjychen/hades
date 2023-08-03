@@ -3,13 +3,9 @@ package server
 import (
 	"context"
 	"fmt"
-	"net"
 	"net/http"
-	"net/http/httputil"
 	"os"
 	"os/signal"
-	"strings"
-	"sync"
 	"syscall"
 	"time"
 
@@ -27,11 +23,7 @@ type Server struct {
 	Engine     *gin.Engine
 	HttpServer *http.Server
 	Addr       string
-	mu         sync.Mutex
-	doneChan   chan struct{}
 	Routers    []func(*gin.Engine)
-	Shutdowns  []func(*Server)
-	Services   []func(*Server)
 }
 
 func (srv *Server) setupSignal() {
@@ -55,17 +47,9 @@ func (srv *Server) setupSignal() {
 }
 
 func (srv *Server) Shutdown(ctx context.Context) {
-	//Give priority to business shutdown Hook
-	if len(srv.Shutdowns) > 0 {
-		for _, shutdown := range srv.Shutdowns {
-			shutdown(srv)
-		}
-	}
-	//wait for registry shutdown
 	select {
 	case <-time.After(shutdownWait):
 	}
-	// close the HttpServer
 	srv.HttpServer.Shutdown(ctx)
 }
 
@@ -140,19 +124,8 @@ func (srv *Server) RegisterRouters(routers ...func(engine *gin.Engine)) *Server 
 	return srv
 }
 
-// ListenAndServe Listen And Serve()
 func (srv *Server) ListenAndServe() error {
 	srv.Engine = gin.New()
-	srv.Engine.Use(srv.apiRecoveryMiddleware())
-
-	for _, service := range srv.Services {
-		service(srv)
-	}
-
-	// for _, middleware := range srv.Middlewares {
-	// 	middleware(srv.Engine)
-	// }
-
 	for _, c := range srv.Routers {
 		c(srv.Engine)
 	}
@@ -168,47 +141,4 @@ func (srv *Server) ListenAndServe() error {
 		return err
 	}
 	return nil
-}
-
-// ApiRecovery recovery any panics and writes a 500 if there was one.
-func (srv *Server) apiRecoveryMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		defer func() {
-			if err := recover(); err != nil {
-				var brokenPipe bool
-				if ne, ok := err.(*net.OpError); ok {
-					if se, ok := ne.Err.(*os.SyscallError); ok {
-						if strings.Contains(strings.ToLower(se.Error()), "broken pipe") || strings.Contains(strings.ToLower(se.Error()), "connection reset by peer") {
-							brokenPipe = true
-						}
-					}
-				}
-
-				stack := stack(3)
-				httpRequest, _ := httputil.DumpRequest(c.Request, false)
-				headers := strings.Split(string(httpRequest), "\r\n")
-				for idx, header := range headers {
-					current := strings.Split(header, ":")
-					if current[0] == "Authorization" {
-						headers[idx] = current[0] + ": *"
-					}
-				}
-
-				if brokenPipe {
-					logger.GetLogger().Error(fmt.Sprintf("%s\n%s%s", err, string(httpRequest), reset))
-				} else {
-					logger.GetLogger().Error(fmt.Sprintf("[Recovery] %s panic recovered:\n%s\n%s%s",
-						formatTime(time.Now()), err, stack, reset))
-				}
-
-				if brokenPipe {
-					c.Error(err.(error))
-					c.Abort()
-				} else {
-					c.AbortWithStatus(http.StatusInternalServerError)
-				}
-			}
-		}()
-		c.Next()
-	}
 }

@@ -20,7 +20,6 @@ type Node struct {
 	IP       string `json:"ip" gorm:"size:32;column:ip;default:''"`
 	Hostname string `json:"hostname" gorm:"size:64;column:hostname;default:''"`
 	UUID     string `json:"uuid" gorm:"size:128;column:uuid;not null;index:idx_node_uuid;"`
-	Version  string `json:"version" gorm:"size:64;column:version;default:''"`
 	Status   int    `json:"status" gorm:"size:1;column:status"`
 
 	UpTime   int64 `json:"up" gorm:"column:up;not null"`

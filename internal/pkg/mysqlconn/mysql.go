@@ -35,7 +35,6 @@ func Init(dsn, logMode string, maxIdleConns, maxOpenConns int) (*gorm.DB, error)
 		DefaultStringSize:         256,
 		SkipInitializeWithVersion: false,
 	}
-	// todo: gorm.Open setConfig(logMode)
 	if db, err := gorm.Open(mysql.New(mysqlConfig)); err != nil {
 		return nil, err
 	} else {

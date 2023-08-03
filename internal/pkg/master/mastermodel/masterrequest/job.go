@@ -29,13 +29,10 @@ type (
 )
 
 func (r *ReqJobUpdate) Valid() error {
-	// default automatic assignment
 	if r.Allocation == 0 {
 		r.Allocation = model.AutoAllocation
 	}
 	notifyTo, _ := json.Marshal(r.NotifyToArray)
 	r.NotifyTo = notifyTo
-	scriptID, _ := json.Marshal(r.ScriptIDArray)
-	r.ScriptID = scriptID
 	return r.Check()
 }
