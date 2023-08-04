@@ -94,7 +94,6 @@ func NewSlaveServer(nodeType, configFile string) (*slaveservice.NodeServer, erro
 			Hostname: hostname,
 			UpTime:   time.Now().Unix(),
 			Status:   model.NodeConnSuccess,
-			// Version:  config.GetConfig().System.Version,
 		},
 		Cron:      cron.New(),
 		Jobs:      make(slavehandler.Jobs, 8),

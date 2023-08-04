@@ -7,7 +7,6 @@ import (
 	"strings"
 	"sync/atomic"
 
-	"github.com/coreos/etcd/clientv3"
 	"github.com/wyattjychen/hades/internal/pkg/config"
 	"github.com/wyattjychen/hades/internal/pkg/etcdconn"
 	"github.com/wyattjychen/hades/internal/pkg/logger"
@@ -47,14 +46,14 @@ func GetProcFromKey(key string) (proc *JobProc, err error) {
 	return
 }
 
-func (p *JobProc) Key() string {
-	return fmt.Sprintf(etcdconn.EtcdProcKey, p.NodeUUID, p.JobID, p.ID)
-}
+// func (p *JobProc) Key() string {
+// 	return fmt.Sprintf(etcdconn.EtcdProcKey, p.NodeUUID, p.JobID, p.ID)
+// }
 
-func (p *JobProc) del() error {
-	_, err := etcdconn.Delete(p.Key())
-	return err
-}
+// func (p *JobProc) del() error {
+// 	_, err := etcdconn.Delete(p.Key())
+// 	return err
+// }
 
 func (p *JobProc) Stop() {
 	if p == nil {
@@ -70,9 +69,9 @@ func (p *JobProc) Stop() {
 	}
 }
 
-func WatchProc(nodeUUID string) clientv3.WatchChan {
-	return etcdconn.Watch(fmt.Sprintf(etcdconn.EtcdNodeProcKeyPrefix, nodeUUID), clientv3.WithPrefix())
-}
+// func WatchProc(nodeUUID string) clientv3.WatchChan {
+// 	return etcdconn.Watch(fmt.Sprintf(etcdconn.EtcdNodeProcKeyPrefix, nodeUUID), clientv3.WithPrefix())
+// }
 
 func (p *JobProc) Start() error {
 	if !atomic.CompareAndSwapInt32(&p.Running, 0, 1) {

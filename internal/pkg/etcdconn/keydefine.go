@@ -10,8 +10,8 @@ const (
 	//key  /hades/proc/<node_uuid>/<job_id>/<pid>
 	EtcdProcKeyPrefix     = EtcdKeyPrefix + "proc/"
 	EtcdNodeProcKeyPrefix = EtcdProcKeyPrefix + "%s/"
-	EtcdJobProcKeyPrefix  = EtcdNodeProcKeyPrefix + "%d/"
-	EtcdProcKey           = EtcdJobProcKeyPrefix + "%d"
+	// EtcdJobProcKeyPrefix  = EtcdNodeProcKeyPrefix + "%d/"
+	// EtcdProcKey           = EtcdJobProcKeyPrefix + "%d"
 
 	// key /hades/once/<jobID>
 	EtcdOnceKeyPrefix = EtcdKeyPrefix + "once/"

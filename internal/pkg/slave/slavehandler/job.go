@@ -156,7 +156,7 @@ func (j *Job) Fail(jobLogId int, start time.Time, errMsg string, retry int) erro
 }
 
 func WatchJobs(nodeUUID string) clientv3.WatchChan {
-	return etcdconn.Watch(fmt.Sprintf(etcdconn.EtcdJobKeyPrefix /*KeyEtcdJobProfile*/, nodeUUID), clientv3.WithPrefix())
+	return etcdconn.Watch(fmt.Sprintf(etcdconn.EtcdJobKeyPrefix, nodeUUID), clientv3.WithPrefix())
 }
 
 func GetJobIDFromKey(key string) int {
