@@ -8,8 +8,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/jakecoffman/cron"
 	"github.com/wyattjychen/hades/internal/pkg/etcdconn"
+	"github.com/wyattjychen/hades/internal/pkg/hadescron"
 	"github.com/wyattjychen/hades/internal/pkg/logger"
 	"github.com/wyattjychen/hades/internal/pkg/model"
 	"github.com/wyattjychen/hades/internal/pkg/mysqlconn"
@@ -19,7 +19,7 @@ import (
 type NodeServer struct {
 	*etcdconn.ServerReg
 	*model.Node
-	*cron.Cron
+	*hadescron.Cron
 
 	Jobs slavehandler.Jobs
 }

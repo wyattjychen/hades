@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/jakecoffman/cron"
 	"github.com/wyattjychen/hades/internal/pkg/config"
 	"github.com/wyattjychen/hades/internal/pkg/etcdconn"
+	"github.com/wyattjychen/hades/internal/pkg/hadescron"
 	"github.com/wyattjychen/hades/internal/pkg/logger"
 	"github.com/wyattjychen/hades/internal/pkg/model"
 	"github.com/wyattjychen/hades/internal/pkg/mysqlconn"
@@ -95,7 +95,7 @@ func NewSlaveServer(nodeType, configFile string) (*slaveservice.NodeServer, erro
 			UpTime:   time.Now().Unix(),
 			Status:   model.NodeConnSuccess,
 		},
-		Cron:      cron.New(),
+		Cron:      hadescron.New(),
 		Jobs:      make(slavehandler.Jobs, 8),
 		ServerReg: etcdconn.NewServerReg(config.GetConfig().System.NodeTtl),
 	}, nil

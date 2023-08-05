@@ -46,14 +46,14 @@ func GetProcFromKey(key string) (proc *JobProc, err error) {
 	return
 }
 
-// func (p *JobProc) Key() string {
-// 	return fmt.Sprintf(etcdconn.EtcdProcKey, p.NodeUUID, p.JobID, p.ID)
-// }
+func (p *JobProc) Key() string {
+	return fmt.Sprintf(etcdconn.EtcdProcKey, p.NodeUUID, p.JobID, p.ID)
+}
 
-// func (p *JobProc) del() error {
-// 	_, err := etcdconn.Delete(p.Key())
-// 	return err
-// }
+func (p *JobProc) del() error {
+	_, err := etcdconn.Delete(p.Key())
+	return err
+}
 
 func (p *JobProc) Stop() {
 	if p == nil {
