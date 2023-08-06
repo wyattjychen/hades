@@ -92,7 +92,7 @@ func NewMasterServer(nodeType, configFile string) (*Server, error) {
 		return nil, err
 	} else {
 		logger.GetLogger().Info("server:init mysql success")
-		fmt.Println("server:init mysql success")
+		fmt.Println("master server init mysql success")
 	}
 
 	// db-etcd
@@ -114,8 +114,8 @@ func NewMasterServer(nodeType, configFile string) (*Server, error) {
 
 	//todo : set gin mode
 
-	gin.SetMode(gin.DebugMode)
-
+	// gin.SetMode(gin.DebugMode)
+	gin.SetMode(gin.ReleaseMode)
 	return server, nil
 }
 

@@ -30,6 +30,7 @@ func Start() {
 			os.Exit(1)
 		}
 		fmt.Println(srv.Addr)
+		fmt.Println("master service started, Ctrl+C or send kill sign to exit")
 		// Register the API routing service
 		srv.RegisterRouters(masterhandler.RegisterRouters)
 		masterservice.DefaultNodeWatcher = masterservice.NewNodeWatcherService()

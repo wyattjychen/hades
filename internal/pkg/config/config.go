@@ -35,7 +35,9 @@ func LoadConfig(nodeType, configFileName string) (*model.Config, error) {
 		fmt.Println(err)
 	}
 	fmt.Println("load config file success. ")
-	fmt.Println(balance.BalanceType(cfg.System.Balance).Name())
+	if nodeType == "master" {
+		fmt.Println(balance.BalanceType(cfg.System.Balance).Name())
+	}
 	defaultConfig = &cfg
 	return &cfg, nil
 }
