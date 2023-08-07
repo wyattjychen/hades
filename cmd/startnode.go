@@ -31,20 +31,17 @@ func Start() {
 		}
 		fmt.Println(srv.Addr)
 		fmt.Println("master service started, Ctrl+C or send kill sign to exit")
-		// Register the API routing service
 		srv.RegisterRouters(masterhandler.RegisterRouters)
 		masterservice.DefaultNodeWatcher = masterservice.NewNodeWatcherService()
 		err = masterservice.DefaultNodeWatcher.Watch()
 		if err != nil {
 			logger.GetLogger().Error(fmt.Sprintf("resolver  error:%#v", err))
 		}
-		//init db table
 		err = masterservice.RegisterTables(mysqlconn.GetMysqlDB())
 		if err != nil {
 			logger.GetLogger().Error(fmt.Sprintf("init db table error:%#v", err))
 		}
 		go notify.Serve()
-		// log cleaner
 		var closeChan chan struct{}
 		period := config.GetConfig().System.LogCleanPeriod
 		if period > 0 {
@@ -59,7 +56,6 @@ func Start() {
 		os.Exit(0)
 
 	} else if nodeType == "node" {
-		// Start slave
 		srv, err := server.NewSlaveServer(nodeType, cfgFile)
 		if err != nil {
 			logger.GetLogger().Error(fmt.Sprintf("create new master server error:%s", err.Error()))
@@ -76,12 +72,9 @@ func Start() {
 			logger.GetLogger().Error(fmt.Sprintf("node run error: %s", err.Error()))
 			os.Exit(1)
 		}
-		// notification operation
 		go notify.Serve()
 		logger.GetLogger().Info(fmt.Sprintf("hades node %s service started, Ctrl+C or send kill sign to exit", srv.String()))
-		// Register the logout event
 		event.OnEvent(event.EXIT, srv.Stop)
-		// Listen for exit signals
 		event.WaitEvent()
 		event.EmitEvent(event.EXIT, nil)
 		logger.GetLogger().Info("exit success")

@@ -69,10 +69,6 @@ func (p *JobProc) Stop() {
 	}
 }
 
-// func WatchProc(nodeUUID string) clientv3.WatchChan {
-// 	return etcdconn.Watch(fmt.Sprintf(etcdconn.EtcdNodeProcKeyPrefix, nodeUUID), clientv3.WithPrefix())
-// }
-
 func (p *JobProc) Start() error {
 	if !atomic.CompareAndSwapInt32(&p.Running, 0, 1) {
 		return nil

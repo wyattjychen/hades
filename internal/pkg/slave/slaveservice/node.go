@@ -44,8 +44,6 @@ func (srv *NodeServer) Register() error {
 	return nil
 }
 
-// Check whether the node is registered with ETCD
-// If yes, PID is returned. If no, -1 is returned
 func (srv *NodeServer) exist(nodeUUID string) (pid int, err error) {
 	resp, err := etcdconn.Get(fmt.Sprintf(etcdconn.EtcdNodeKey, nodeUUID))
 	if err != nil {
@@ -91,7 +89,6 @@ func (srv *NodeServer) Run() (err error) {
 		return
 	}
 	srv.Node.ID = insertId
-	//start cron
 	srv.Cron.Start()
 	go srv.watchJobs()
 	go srv.watchOnce()
